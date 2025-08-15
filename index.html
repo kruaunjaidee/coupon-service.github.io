@@ -311,21 +311,24 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
             type: "text",
             text: "คูปองพิเศษ",
             weight: "bold",
-            size: "xl",
+            size: "3xl",
             align: "center",
-            color: "#333333",
+            color: "#1a6ff7",
             wrap: true
           },
           {
             type: "text",
             text: "แสดงคูปองนี้เพื่อรับส่วนลด!",
-            size: "sm",
+            size: "md",
             color: "#666666",
             align: "center",
             margin: "md",
             wrap: true
           },
-          { type: "separator", margin: "lg" },
+          {
+            type: "separator",
+            margin: "lg"
+          },
           {
             type: "box",
             layout: "vertical",
@@ -336,16 +339,16 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                 contents: [
                   {
                     type: "text",
-                    text: "ประเภท: ",
-                    size: "sm",
+                    text: "ประเภท",
+                    size: "lg",
                     color: "#555555",
                     weight: "bold"
                   },
                   {
                     type: "text",
                     text: type === "discount" ? "ส่วนลด" : type === "free_item" ? "ของฟรี" : "สิทธิพิเศษ",
-                    size: "sm",
-                    color: "#555555",
+                    size: "lg",
+                    color: "#ff0000",
                     wrap: true
                   }
                 ],
@@ -358,21 +361,23 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                 contents: [
                   {
                     type: "text",
-                    text: "รหัส: ",
-                    size: "sm",
+                    text: "รหัสของคุณ",
+                    size: "lg",
                     color: "#555555",
-                    weight: "bold"
-                  },
-                  {
-                    type: "text",
-                    text: couponId,
-                    size: "sm",
-                    color: "#555555",
-                    wrap: true
+                    weight: "bold",
+                    align: "start"
                   }
                 ],
                 margin: "md",
                 spacing: "sm"
+              },
+              {
+                type: "text",
+                text: couponId,
+                size: "md",
+                color: "#ff99ff",
+                wrap: true,
+                align: "start"
               },
               {
                 type: "box",
@@ -380,21 +385,22 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                 contents: [
                   {
                     type: "text",
-                    text: "หมดอายุ: ",
-                    size: "sm",
+                    text: "หมดอายุ",
+                    size: "lg",
                     color: "#555555",
                     weight: "bold"
                   },
                   {
                     type: "text",
                     text: expireDate,
-                    size: "sm",
-                    color: "#555555",
+                    size: "lg",
+                    color: "#1a6afb",
                     wrap: true
                   }
                 ],
                 margin: "md",
-                spacing: "sm"
+                spacing: "sm",
+                offsetBottom: "md"
               }
             ],
             spacing: "sm"
