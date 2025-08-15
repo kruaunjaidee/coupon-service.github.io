@@ -1,129 +1,123 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-<meta charset="UTF-8">
-<title>LINE LIFF Coupon Manager</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>LIFF Coupon Service</title>
+  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
+  <style>
+    body { font-family: sans-serif; padding: 20px; }
+    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    button { margin: 2px; }
+  </style>
 </head>
-<body onload="initLiff()">
-<h1>สร้างคูปอง</h1>
-<form onsubmit="createCoupon(); return false;">
+<body>
+  <h1>สร้างคูปอง</h1>
   <label>ประเภทคูปอง:
-    <select id="couponType">
-      <option value="discount_fixed">ส่วนลดคงที่</option>
-      <option value="discount_percent">ส่วนลดเปอร์เซ็นต์</option>
-      <option value="free_item">แลกของฟรี</option>
+    <select id="type">
+      <option value="discount">ส่วนลด</option>
+      <option value="free_item">ของฟรี</option>
+      <option value="special_access">สิทธิพิเศษ</option>
     </select>
   </label><br><br>
+  <label>วันหมดอายุ: <input type="date" id="expire" /></label><br><br>
+  <button onclick="createCoupon()">สร้างคูปอง</button>
 
-  <label>ชื่อคูปอง: <input id="title" value="Friends-only coupon"></label><br><br>
-  <label>คำอธิบาย: <textarea id="description">- แสดงคูปองนี้กับพนักงาน\n- ใช้ได้ครั้งเดียว</textarea></label><br><br>
-  <label>ลิงก์รูปภาพ: <input id="imageUrl" value="https://developers.line.biz/media/messaging-api/coupon/sample-coupon-image-100-yen-off.jpg"></label><br><br>
-  <label>วันหมดอายุ: <input type="date" id="expiryDate"></label><br><br>
-  <button type="submit">สร้างคูปอง</button>
-</form>
+  <h2>ตารางคูปอง</h2>
+  <table>
+    <thead>
+      <tr>
+        <th>User ID</th>
+        <th>Coupon ID</th>
+        <th>ประเภท</th>
+        <th>วันหมดอายุ</th>
+        <th>จัดการ</th>
+      </tr>
+    </thead>
+    <tbody id="couponTable"></tbody>
+  </table>
 
-<h2>รายการคูปอง</h2>
-<table border="1">
-  <thead>
-    <tr>
-      <th>User ID</th>
-      <th>Coupon ID</th>
-      <th>ประเภท</th>
-      <th>วันหมดอายุ</th>
-      <th>สถานะ</th>
-      <th>การจัดการ</th>
-    </tr>
-  </thead>
-  <tbody id="couponTableBody"></tbody>
-</table>
-
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
-const LIFF_ID = "2005780370-Ybr8MVR2";
+let userId = "";
 
-async function callEdge(action, payload = {}) {
-  const res = await fetch(EDGE_URL, {
-    method: "POST",
+async function callEdge(path, method = "GET", body) {
+  const res = await fetch(`${EDGE_URL}${path}`, {
+    method,
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ action, payload })
+    body: body ? JSON.stringify(body) : undefined,
   });
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
 async function createCoupon() {
-  const couponType = document.getElementById('couponType').value;
-  const expiryDate = document.getElementById('expiryDate').value;
-  const title = document.getElementById('title').value;
-  const description = document.getElementById('description').value;
-  const imageUrl = document.getElementById('imageUrl').value;
-
-  const profile = await liff.getProfile();
-
-  const result = await callEdge("create", {
-    user_id: profile.userId,
-    coupon_type: couponType,
-    expiry_date: expiryDate,
-    title,
-    description,
-    imageUrl
-  });
-
-  if (result.success) {
-    await shareCoupon(couponType, expiryDate);
-    loadCoupons();
-  } else {
-    alert("สร้างคูปองไม่สำเร็จ: " + result.error);
-  }
+  const type = document.getElementById("type").value;
+  const expire = document.getElementById("expire").value;
+  const couponId = "CPN" + Date.now();
+  await callEdge("/create", "POST", { userId, couponId, type, expireDate: expire });
+  await loadCoupons();
 }
 
 async function loadCoupons() {
-  const result = await callEdge("list");
-  const tbody = document.getElementById('couponTableBody');
-  tbody.innerHTML = result.data.map(c => `
-    <tr>
+  const coupons = await callEdge("/list");
+  const tbody = document.getElementById("couponTable");
+  tbody.innerHTML = "";
+  coupons.forEach(c => {
+    const tr = document.createElement("tr");
+    tr.innerHTML = `
       <td>${c.user_id}</td>
       <td>${c.coupon_id}</td>
-      <td>${c.coupon_type}</td>
-      <td>${c.expiry_date}</td>
-      <td>${c.status}</td>
+      <td>${c.type}</td>
+      <td>${c.expire_date}</td>
       <td>
+        <button onclick="shareCoupon('${c.coupon_id}', '${c.type}', '${c.expire_date}')">แชร์</button>
         <button onclick="closeCoupon('${c.coupon_id}')">ปิด</button>
-        <button onclick="shareCoupon('${c.coupon_type}','${c.expiry_date}')">แชร์</button>
       </td>
-    </tr>
-  `).join("");
+    `;
+    tbody.appendChild(tr);
+  });
 }
 
-async function closeCoupon(id) {
-  await callEdge("close", { coupon_id: id });
-  loadCoupons();
+async function closeCoupon(couponId) {
+  await callEdge(`/close/${couponId}`, "PUT");
+  await loadCoupons();
 }
 
-async function shareCoupon(type, expiry) {
-  const flexMsg = {
+function shareCoupon(couponId, type, expireDate) {
+  const message = {
     type: "flex",
-    altText: "คูปอง",
+    altText: "คุณได้รับคูปอง",
     contents: {
       type: "bubble",
       body: {
         type: "box",
         layout: "vertical",
         contents: [
-          { type: "text", text: type, weight: "bold", size: "xl" },
-          { type: "text", text: `หมดอายุ: ${expiry}`, size: "sm", color: "#999999" }
+          { type: "text", text: "คูปองพิเศษ", weight: "bold", size: "xl" },
+          { type: "text", text: `ประเภท: ${type}` },
+          { type: "text", text: `รหัส: ${couponId}` },
+          { type: "text", text: `หมดอายุ: ${expireDate}` }
         ]
       }
     }
   };
-  await liff.shareTargetPicker([flexMsg]);
+  liff.shareTargetPicker([message]);
 }
 
 async function initLiff() {
-  await liff.init({ liffId: LIFF_ID });
-  if (!liff.isLoggedIn()) liff.login();
-  loadCoupons();
+  await liff.init({ liffId: "2005780370-Ybr8MVR2" });
+  if (!liff.isLoggedIn()) {
+    liff.login();
+    return;
+  }
+  const profile = await liff.getProfile();
+  userId = profile.userId;
+  await loadCoupons();
 }
+
+initLiff();
 </script>
 </body>
 </html>
