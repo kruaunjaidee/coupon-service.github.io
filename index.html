@@ -42,6 +42,7 @@
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
 let userId = "";
 
+// ฟังก์ชันเรียก Edge Function
 async function callEdge(path, method = "GET", body) {
   const res = await fetch(`${EDGE_URL}${path}`, {
     method,
@@ -52,6 +53,7 @@ async function callEdge(path, method = "GET", body) {
   return await res.json();
 }
 
+// สร้างคูปองใหม่
 async function createCoupon() {
   const type = document.getElementById("type").value;
   const expire = document.getElementById("expire").value;
@@ -60,6 +62,7 @@ async function createCoupon() {
   await loadCoupons();
 }
 
+// โหลดคูปองจาก Supabase
 async function loadCoupons() {
   const coupons = await callEdge("/list");
   const tbody = document.getElementById("couponTable");
@@ -80,11 +83,13 @@ async function loadCoupons() {
   });
 }
 
+// ปิดคูปอง
 async function closeCoupon(couponId) {
   await callEdge(`/close/${couponId}`, "PUT");
   await loadCoupons();
 }
 
+// แชร์คูปองผ่าน LIFF
 function shareCoupon(couponId, type, expireDate) {
   const message = {
     type: "flex",
@@ -106,12 +111,10 @@ function shareCoupon(couponId, type, expireDate) {
   liff.shareTargetPicker([message]);
 }
 
+// เริ่ม LIFF
 async function initLiff() {
   await liff.init({ liffId: "2005780370-Ybr8MVR2" });
-  if (!liff.isLoggedIn()) {
-    liff.login();
-    return;
-  }
+  if (!liff.isLoggedIn()) { liff.login(); return; }
   const profile = await liff.getProfile();
   userId = profile.userId;
   await loadCoupons();
