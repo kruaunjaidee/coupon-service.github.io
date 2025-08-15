@@ -82,15 +82,19 @@ async function callEdge(path, method="GET", body=null){
 }
 
 async function loadTokens(){
-  const tokens = await callEdge("/tokens");
-  const select = document.getElementById("tokenSelect");
-  select.innerHTML="";
-  tokens.forEach(t=>{
-    const opt = document.createElement("option");
-    opt.value = t.token;
-    opt.textContent = t.name;
-    select.appendChild(opt);
-  });
+  try {
+    const tokens = await callEdge("/tokens");
+    const select = document.getElementById("tokenSelect");
+    select.innerHTML="";
+    tokens.forEach(t=>{
+      const opt = document.createElement("option");
+      opt.value = t.token;
+      opt.textContent = t.name;
+      select.appendChild(opt);
+    });
+  } catch(err) {
+    Swal.fire('โหลด Token ไม่สำเร็จ', err.message, 'error');
+  }
 }
 
 async function addToken(){
@@ -116,6 +120,11 @@ async function createCoupon(){
   const token = document.getElementById("tokenSelect").value;
   if(!userId||!expire||!token){ Swal.fire('กรอกให้ครบทุกช่อง', '', 'warning'); return; }
 
+  if (!imageUrl.startsWith('https://')) {
+    Swal.fire('Image URL ต้องเป็น HTTPS', 'กรุณาใส่ URL ที่ถูกต้องหรือปล่อยว่างเพื่อใช้ค่าเริ่มต้น', 'warning');
+    return;
+  }
+
   const endDate = new Date(`${expire}T23:59:59+07:00`);
   const endTimestamp = Math.floor(endDate.getTime() / 1000);
 
@@ -133,6 +142,14 @@ async function createCoupon(){
   };
 
   try{
+    Swal.fire({
+      title: 'กำลังสร้างคูปอง...',
+      text: 'กรุณารอสักครู่',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
     const lineRes = await callEdge("/line-create","POST",{token,bodyLINE});
     const couponId = lineRes.data.couponId;
     await callEdge("/create","POST",{userId,couponId,type,expireDate:expire,imageUrl});
@@ -146,6 +163,14 @@ async function syncCoupons(){
   const token = document.getElementById("tokenSelect").value;
   if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
   try{
+    Swal.fire({
+      title: 'กำลัง Sync คูปอง...',
+      text: 'กรุณารอสักครู่',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
     await callEdge("/sync","POST",{token});
     await loadCoupons();
     Swal.fire('Sync สำเร็จ', '', 'success');
@@ -153,30 +178,42 @@ async function syncCoupons(){
 }
 
 async function loadCoupons(){
-  const coupons = await callEdge("/list");
-  const tbody = document.getElementById("couponTable");
-  tbody.innerHTML = "";
-  coupons.forEach(c=>{
-    const tr=document.createElement("tr");
-    tr.innerHTML=`
-      <td class="px-6 py-4 whitespace-nowrap text-center">${c.user_id}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-center">${c.coupon_id}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-center">${c.type}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-center">${c.expire_date}</td>
-      <td class="px-6 py-4 whitespace-nowrap text-center">
-        <button onclick="closeCoupon('${c.coupon_id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2">ปิด</button>
-        <button onclick="generateFlex('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
-        <button onclick="shareCoupon('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">แชร์</button>
-      </td>
-    `;
-    tbody.appendChild(tr);
-  });
+  try {
+    const coupons = await callEdge("/list");
+    const tbody = document.getElementById("couponTable");
+    tbody.innerHTML = "";
+    coupons.forEach(c=>{
+      const tr=document.createElement("tr");
+      tr.innerHTML=`
+        <td class="px-6 py-4 whitespace-nowrap text-center">${c.user_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">${c.coupon_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">${c.type}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">${c.expire_date}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center">
+          <button onclick="closeCoupon('${c.coupon_id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2">ปิด</button>
+          <button onclick="generateFlex('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
+          <button onclick="shareCoupon('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">แชร์</button>
+        </td>
+      `;
+      tbody.appendChild(tr);
+    });
+  } catch(err) {
+    Swal.fire('โหลดคูปองไม่สำเร็จ', err.message, 'error');
+  }
 }
 
 async function closeCoupon(couponId){
   const token = document.getElementById("tokenSelect").value;
   if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
   try {
+    Swal.fire({
+      title: 'กำลังปิดคูปอง...',
+      text: 'กรุณารอสักครู่',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
     await callEdge(`/close/${couponId}`,"PUT",{token});
     await loadCoupons();
     Swal.fire('ปิดและลบคูปองสำเร็จ', '', 'success');
@@ -187,23 +224,72 @@ async function closeCoupon(couponId){
 
 async function shareCoupon(couponId, type, expireDate, imageUrl) {
   try {
+    // Initialize LIFF
+    Swal.fire({
+      title: 'กำลังเริ่มต้น LIFF...',
+      text: 'กรุณารอสักครู่',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
     await liff.init({ liffId: LIFF_ID });
+
+    // Check login status
     if (!liff.isLoggedIn()) {
+      Swal.fire({
+        title: 'ต้องเข้าสู่ระบบ LINE',
+        text: 'กำลัง redirect ไปหน้า login...',
+        icon: 'warning',
+        timer: 2000,
+        timerProgressBar: true,
+        allowOutsideClick: false
+      });
       await liff.login();
+      Swal.close();
     }
+
+    // Check if shareTargetPicker is available
     if (!liff.isApiAvailable('shareTargetPicker')) {
-      Swal.fire('Share Target Picker ไม่พร้อมใช้งาน', 'กรุณาตรวจสอบการตั้งค่า LIFF ใน LINE Developer Console', 'error');
+      Swal.fire({
+        title: 'Share Target Picker ไม่พร้อมใช้งาน',
+        text: 'กรุณาตรวจสอบการตั้งค่า LIFF ใน LINE Developer Console และเปิดใช้งาน scope chat_message.write',
+        icon: 'error'
+      });
       return;
     }
+
+    // Generate and validate Flex Message
     const flexMessage = generateFlexObject(couponId, type, expireDate, imageUrl);
-    await liff.shareTargetPicker([flexMessage]);
-    Swal.fire('แชร์คูปองสำเร็จ', '', 'success');
+    Swal.fire({
+      title: 'กำลังเปิดหน้าต่างแชร์...',
+      text: 'กรุณาเลือกแชทที่ต้องการแชร์',
+      icon: 'info',
+      allowOutsideClick: false,
+      showConfirmButton: false,
+      willOpen: () => Swal.showLoading()
+    });
+
+    // Call shareTargetPicker
+    const result = await liff.shareTargetPicker([flexMessage], { isMultiple: true });
+    if (result) {
+      Swal.fire('แชร์คูปองสำเร็จ', 'คูปองถูกส่งไปยังแชทที่เลือกแล้ว', 'success');
+    } else {
+      Swal.fire('ยกเลิกการแชร์', 'คุณยกเลิกการเลือกแชท', 'info');
+    }
   } catch (err) {
-    Swal.fire('แชร์คูปองไม่สำเร็จ', err.message, 'error');
+    console.error('Share Error:', err);
+    Swal.fire('แชร์คูปองไม่สำเร็จ', `เกิดข้อผิดพลาด: ${err.message}`, 'error');
   }
 }
 
 function generateFlexObject(couponId, type, expireDate, imageUrl) {
+  // Validate imageUrl
+  if (!imageUrl.startsWith('https://')) {
+    console.warn('Invalid image URL, using default:', imageUrl);
+    imageUrl = DEFAULT_IMAGE;
+  }
+
   return {
     type: "flex",
     altText: "คูปองพิเศษจาก LINE OA",
@@ -263,7 +349,8 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                     wrap: true
                   }
                 ],
-                margin: "md"
+                margin: "md",
+                spacing: "sm"
               },
               {
                 type: "box",
@@ -284,7 +371,8 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                     wrap: true
                   }
                 ],
-                margin: "md"
+                margin: "md",
+                spacing: "sm"
               },
               {
                 type: "box",
@@ -305,7 +393,8 @@ function generateFlexObject(couponId, type, expireDate, imageUrl) {
                     wrap: true
                   }
                 ],
-                margin: "md"
+                margin: "md",
+                spacing: "sm"
               }
             ],
             spacing: "sm"
