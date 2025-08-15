@@ -1,126 +1,350 @@
 <!DOCTYPE html>
 <html lang="th">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LIFF Coupon Service</title>
-  <script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
-  <style>
-    body { font-family: sans-serif; padding: 20px; }
-    table { border-collapse: collapse; width: 100%; margin-top: 20px; }
-    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
-    button { margin: 2px; }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Flex Coupon Generator + Supabase</title>
+<script src="https://cdn.tailwindcss.com"></script>
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
-<body>
-  <h1>สร้างคูปอง</h1>
-  <label>ประเภทคูปอง:
-    <select id="type">
+<body class="bg-gray-50 p-6 font-sans antialiased">
+
+<h1 class="text-3xl font-bold text-green-600 mb-6">Flex Coupon Generator + Supabase</h1>
+
+<h2 class="text-xl font-semibold text-gray-800 mb-4">Channel Access Tokens</h2>
+<div class="flex items-center space-x-2 mb-4">
+  <select id="tokenSelect" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"></select>
+  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"/>
+  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"/>
+  <button onclick="addToken()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">เพิ่ม Token</button>
+</div>
+
+<h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างคูปอง</h2>
+<div class="space-y-4 mb-4">
+  <label class="block">
+    <span class="text-gray-700">User ID:</span>
+    <input type="text" id="userId" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+  </label>
+  <label class="block">
+    <span class="text-gray-700">ประเภทคูปอง:</span>
+    <select id="type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
       <option value="discount">ส่วนลด</option>
       <option value="free_item">ของฟรี</option>
       <option value="special_access">สิทธิพิเศษ</option>
     </select>
-  </label><br><br>
-  <label>วันหมดอายุ: <input type="date" id="expire" /></label><br><br>
-  <button onclick="createCoupon()">สร้างคูปอง</button>
+  </label>
+  <label class="block">
+    <span class="text-gray-700">วันหมดอายุ:</span>
+    <input type="date" id="expire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+  </label>
+  <label class="block">
+    <span class="text-gray-700">Image URL (optional):</span>
+    <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+  </label>
+  <button onclick="createCoupon()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">สร้างคูปอง</button>
+</div>
 
-  <h2>ตารางคูปอง</h2>
-  <table>
-    <thead>
-      <tr>
-        <th>User ID</th>
-        <th>Coupon ID</th>
-        <th>ประเภท</th>
-        <th>วันหมดอายุ</th>
-        <th>จัดการ</th>
-      </tr>
-    </thead>
-    <tbody id="couponTable"></tbody>
-  </table>
+<h2 class="text-xl font-semibold text-gray-800 mb-4">Sync คูปองจาก LINE</h2>
+<button onclick="syncCoupons()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Sync</button>
+
+<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">ตารางคูปอง</h2>
+<table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg overflow-hidden">
+<thead class="bg-gray-50">
+<tr>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon ID</th>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันหมดอายุ</th>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
+</tr>
+</thead>
+<tbody id="couponTable" class="divide-y divide-gray-200"></tbody>
+</table>
+
+<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Flex Message Preview</h2>
+<textarea id="flexPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100"></textarea>
 
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
-let userId = "";
+const DEFAULT_IMAGE = "https://developers.line.biz/media/messaging-api/coupon/sample-coupon-image-100-yen-off.jpg";
+const LIFF_ID = "2005780370-Ybr8MVR2"; // แทนที่ด้วย LIFF ID จริงจาก LINE Developer Console
 
-// ฟังก์ชันเรียก Edge Function
-async function callEdge(path, method = "GET", body) {
-  const res = await fetch(`${EDGE_URL}${path}`, {
+async function callEdge(path, method="GET", body=null){
+  const res = await fetch(`${EDGE_URL}${path}`,{
     method,
-    headers: { "Content-Type": "application/json" },
-    body: body ? JSON.stringify(body) : undefined,
+    headers:{ "Content-Type":"application/json" },
+    body: body ? JSON.stringify(body):undefined
   });
-  if (!res.ok) throw new Error(await res.text());
+  if(!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-// สร้างคูปองใหม่
-async function createCoupon() {
-  const type = document.getElementById("type").value;
-  const expire = document.getElementById("expire").value;
-  const couponId = "CPN" + Date.now();
-  await callEdge("/create", "POST", { userId, couponId, type, expireDate: expire });
-  await loadCoupons();
+async function loadTokens(){
+  const tokens = await callEdge("/tokens");
+  const select = document.getElementById("tokenSelect");
+  select.innerHTML="";
+  tokens.forEach(t=>{
+    const opt = document.createElement("option");
+    opt.value = t.token;
+    opt.textContent = t.name;
+    select.appendChild(opt);
+  });
 }
 
-// โหลดคูปองจาก Supabase
-async function loadCoupons() {
+async function addToken(){
+  const name = document.getElementById("tokenName").value.trim();
+  const token = document.getElementById("tokenValue").value.trim();
+  if(!name||!token){ Swal.fire('กรอกข้อมูลให้ครบ', '', 'warning'); return; }
+  try {
+    await callEdge("/tokens","POST",{name,token});
+    document.getElementById("tokenName").value="";
+    document.getElementById("tokenValue").value="";
+    await loadTokens();
+    Swal.fire('เพิ่ม Token สำเร็จ', '', 'success');
+  } catch(err) {
+    Swal.fire('เพิ่ม Token ไม่สำเร็จ', err.message, 'error');
+  }
+}
+
+async function createCoupon(){
+  const userId = document.getElementById("userId").value.trim();
+  const type = document.getElementById("type").value;
+  const expire = document.getElementById("expire").value;
+  const imageUrl = document.getElementById("imageUrl").value.trim() || DEFAULT_IMAGE;
+  const token = document.getElementById("tokenSelect").value;
+  if(!userId||!expire||!token){ Swal.fire('กรอกให้ครบทุกช่อง', '', 'warning'); return; }
+
+  const endDate = new Date(`${expire}T23:59:59+07:00`);
+  const endTimestamp = Math.floor(endDate.getTime() / 1000);
+
+  const bodyLINE = {
+    title:"Friends-only coupon",
+    description:"- แสดงหน้าจอนี้ให้พนักงานดู\n- ใช้แล้วไม่สามารถใช้ซ้ำ\n- คูปองอาจเปลี่ยนแปลง/ยกเลิกได้โดยไม่แจ้งล่วงหน้า",
+    reward:{ type:"discount", priceInfo:{ type:"fixed", fixedAmount:100 } },
+    acquisitionCondition:{ type:"normal" },
+    startTimestamp:0,
+    endTimestamp: endTimestamp,
+    imageUrl: imageUrl,
+    timezone:"ASIA_BANGKOK",
+    visibility:"UNLISTED",
+    maxUseCountPerTicket:1
+  };
+
+  try{
+    const lineRes = await callEdge("/line-create","POST",{token,bodyLINE});
+    const couponId = lineRes.data.couponId;
+    await callEdge("/create","POST",{userId,couponId,type,expireDate:expire,imageUrl});
+    await loadCoupons();
+    generateFlex(couponId,type,expire,imageUrl);
+    Swal.fire('สร้างคูปองสำเร็จ', '', 'success');
+  }catch(err){ Swal.fire('สร้างคูปองไม่สำเร็จ', err.message, 'error'); }
+}
+
+async function syncCoupons(){
+  const token = document.getElementById("tokenSelect").value;
+  if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
+  try{
+    await callEdge("/sync","POST",{token});
+    await loadCoupons();
+    Swal.fire('Sync สำเร็จ', '', 'success');
+  }catch(err){ Swal.fire('Sync ไม่สำเร็จ', err.message, 'error'); }
+}
+
+async function loadCoupons(){
   const coupons = await callEdge("/list");
   const tbody = document.getElementById("couponTable");
   tbody.innerHTML = "";
-  coupons.forEach(c => {
-    const tr = document.createElement("tr");
-    tr.innerHTML = `
-      <td>${c.user_id}</td>
-      <td>${c.coupon_id}</td>
-      <td>${c.type}</td>
-      <td>${c.expire_date}</td>
-      <td>
-        <button onclick="shareCoupon('${c.coupon_id}', '${c.type}', '${c.expire_date}')">แชร์</button>
-        <button onclick="closeCoupon('${c.coupon_id}')">ปิด</button>
+  coupons.forEach(c=>{
+    const tr=document.createElement("tr");
+    tr.innerHTML=`
+      <td class="px-6 py-4 whitespace-nowrap text-center">${c.user_id}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">${c.coupon_id}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">${c.type}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">${c.expire_date}</td>
+      <td class="px-6 py-4 whitespace-nowrap text-center">
+        <button onclick="closeCoupon('${c.coupon_id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2">ปิด</button>
+        <button onclick="generateFlex('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
+        <button onclick="shareCoupon('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">แชร์</button>
       </td>
     `;
     tbody.appendChild(tr);
   });
 }
 
-// ปิดคูปอง
-async function closeCoupon(couponId) {
-  await callEdge(`/close/${couponId}`, "PUT");
-  await loadCoupons();
+async function closeCoupon(couponId){
+  const token = document.getElementById("tokenSelect").value;
+  if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
+  try {
+    await callEdge(`/close/${couponId}`,"PUT",{token});
+    await loadCoupons();
+    Swal.fire('ปิดและลบคูปองสำเร็จ', '', 'success');
+  } catch(err) {
+    Swal.fire('ปิดคูปองไม่สำเร็จ', err.message, 'error');
+  }
 }
 
-// แชร์คูปองผ่าน LIFF
-function shareCoupon(couponId, type, expireDate) {
-  const message = {
+async function shareCoupon(couponId, type, expireDate, imageUrl) {
+  try {
+    await liff.init({ liffId: LIFF_ID });
+    if (!liff.isLoggedIn()) {
+      await liff.login();
+    }
+    if (!liff.isApiAvailable('shareTargetPicker')) {
+      Swal.fire('Share Target Picker ไม่พร้อมใช้งาน', 'กรุณาตรวจสอบการตั้งค่า LIFF ใน LINE Developer Console', 'error');
+      return;
+    }
+    const flexMessage = generateFlexObject(couponId, type, expireDate, imageUrl);
+    await liff.shareTargetPicker([flexMessage]);
+    Swal.fire('แชร์คูปองสำเร็จ', '', 'success');
+  } catch (err) {
+    Swal.fire('แชร์คูปองไม่สำเร็จ', err.message, 'error');
+  }
+}
+
+function generateFlexObject(couponId, type, expireDate, imageUrl) {
+  return {
     type: "flex",
-    altText: "คุณได้รับคูปอง",
+    altText: "คูปองพิเศษจาก LINE OA",
     contents: {
       type: "bubble",
+      size: "mega",
+      hero: {
+        type: "image",
+        url: imageUrl,
+        size: "full",
+        aspectRatio: "20:13",
+        aspectMode: "cover"
+      },
       body: {
         type: "box",
         layout: "vertical",
         contents: [
-          { type: "text", text: "คูปองพิเศษ", weight: "bold", size: "xl" },
-          { type: "text", text: `ประเภท: ${type}` },
-          { type: "text", text: `รหัส: ${couponId}` },
-          { type: "text", text: `หมดอายุ: ${expireDate}` }
-        ]
+          {
+            type: "text",
+            text: "คูปองพิเศษ",
+            weight: "bold",
+            size: "xl",
+            align: "center",
+            color: "#333333",
+            wrap: true
+          },
+          {
+            type: "text",
+            text: "แสดงคูปองนี้เพื่อรับส่วนลด!",
+            size: "sm",
+            color: "#666666",
+            align: "center",
+            margin: "md",
+            wrap: true
+          },
+          { type: "separator", margin: "lg" },
+          {
+            type: "box",
+            layout: "vertical",
+            contents: [
+              {
+                type: "box",
+                layout: "baseline",
+                contents: [
+                  {
+                    type: "text",
+                    text: "ประเภท: ",
+                    size: "sm",
+                    color: "#555555",
+                    weight: "bold"
+                  },
+                  {
+                    type: "text",
+                    text: type === "discount" ? "ส่วนลด" : type === "free_item" ? "ของฟรี" : "สิทธิพิเศษ",
+                    size: "sm",
+                    color: "#555555",
+                    wrap: true
+                  }
+                ],
+                margin: "md"
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                contents: [
+                  {
+                    type: "text",
+                    text: "รหัส: ",
+                    size: "sm",
+                    color: "#555555",
+                    weight: "bold"
+                  },
+                  {
+                    type: "text",
+                    text: couponId,
+                    size: "sm",
+                    color: "#555555",
+                    wrap: true
+                  }
+                ],
+                margin: "md"
+              },
+              {
+                type: "box",
+                layout: "baseline",
+                contents: [
+                  {
+                    type: "text",
+                    text: "หมดอายุ: ",
+                    size: "sm",
+                    color: "#555555",
+                    weight: "bold"
+                  },
+                  {
+                    type: "text",
+                    text: expireDate,
+                    size: "sm",
+                    color: "#555555",
+                    wrap: true
+                  }
+                ],
+                margin: "md"
+              }
+            ],
+            spacing: "sm"
+          }
+        ],
+        paddingAll: "lg",
+        backgroundColor: "#FFFFFF"
+      },
+      footer: {
+        type: "box",
+        layout: "vertical",
+        spacing: "sm",
+        contents: [
+          {
+            type: "button",
+            action: {
+              type: "message",
+              label: "ใช้คูปอง",
+              text: `ใช้คูปอง ${couponId}`
+            },
+            style: "primary",
+            color: "#00C300"
+          }
+        ],
+        paddingAll: "md"
       }
     }
   };
-  liff.shareTargetPicker([message]);
 }
 
-// เริ่ม LIFF
-async function initLiff() {
-  await liff.init({ liffId: "2005780370-Ybr8MVR2" });
-  if (!liff.isLoggedIn()) { liff.login(); return; }
-  const profile = await liff.getProfile();
-  userId = profile.userId;
-  await loadCoupons();
+function generateFlex(couponId, type, expireDate, imageUrl) {
+  const flexMessage = generateFlexObject(couponId, type, expireDate, imageUrl);
+  document.getElementById("flexPreview").value = JSON.stringify(flexMessage, null, 2);
 }
 
-initLiff();
+// initial load
+loadTokens();
+loadCoupons();
 </script>
+
 </body>
 </html>
