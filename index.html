@@ -13,11 +13,11 @@
 <h1 class="text-3xl font-bold text-green-600 mb-6">Flex Coupon Generator + Supabase</h1>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">Channel Access Tokens</h2>
-<div class="flex items-center space-x-4 mb-6">
-  <select id="tokenSelect" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"></select>
-  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"/>
-  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"/>
-  <button onclick="addToken()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">เพิ่ม Token</button>
+<div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
+  <select id="tokenSelect" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"></select>
+  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"/>
+  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"/>
+  <button onclick="addToken()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">เพิ่ม Token</button>
 </div>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างคูปอง</h2>
@@ -46,14 +46,13 @@
 </div>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">Sync คูปองจาก LINE</h2>
-<button onclick="syncCoupons()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">Sync</button>
+<button onclick="syncCoupons()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">Sync</button>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">ตารางคูปอง</h2>
 <table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg overflow-hidden">
 <thead class="bg-gray-50">
 <tr>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon Name</th>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon ID</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันหมดอายุ</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
@@ -62,8 +61,8 @@
 <tbody id="couponTable" class="divide-y divide-gray-200"></tbody>
 </table>
 
-<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Coupon Message Preview</h2>
-<textarea id="couponPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-lg shadow-sm p-3 bg-gray-100 text-gray-800"></textarea>
+<!-- <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Coupon Message Preview</h2>
+<textarea id="couponPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-lg shadow-sm p-3 bg-gray-100 text-gray-800"></textarea> -->
 
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
@@ -181,16 +180,13 @@ async function loadCoupons(){
     const tbody = document.getElementById("couponTable");
     tbody.innerHTML = "";
     coupons.forEach(c=>{
-      const tr=document.createElement("tr");
-      tr.innerHTML=`
-        <td class="px-6 py-4 whitespace-nowrap text-center">${c.user_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">${c.coupon_id}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">${c.type}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">${c.expire_date}</td>
+      const tr = document.createElement("tr");
+      tr.innerHTML = `
+        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.user_id}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.type}</td>
+        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.expire_date}</td>
         <td class="px-6 py-4 whitespace-nowrap text-center">
-          <button onclick="closeCoupon('${c.coupon_id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2">ปิด</button>
-          <button onclick="generateCouponMessage('${c.coupon_id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
-          <button onclick="copyCouponMessage('${c.coupon_id}')" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">คัดลอก JSON</button>
+          <button onclick="showCouponModal('${c.coupon_id}', '${c.user_id}', '${c.type}', '${c.expire_date}')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Preview</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -218,6 +214,57 @@ async function closeCoupon(couponId){
   } catch(err) {
     Swal.fire('ปิดคูปองไม่สำเร็จ', err.message, 'error');
   }
+}
+
+function showCouponModal(couponId, couponName, type, expireDate) {
+  const couponMessage = generateCouponMessageObject(couponId);
+  const jsonString = JSON.stringify(couponMessage, null, 2);
+  
+  Swal.fire({
+    title: 'รายละเอียดคูปอง',
+    html: `
+      <div class="text-left space-y-4">
+        <div>
+          <p class="font-medium text-gray-700">Coupon Name:</p>
+          <p class="text-gray-800">${couponName}</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-700">Coupon ID:</p>
+          <p class="text-gray-800">${couponId}</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-700">ประเภท:</p>
+          <p class="text-gray-800">${type}</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-700">วันหมดอายุ:</p>
+          <p class="text-gray-800">${expireDate}</p>
+        </div>
+        <div>
+          <p class="font-medium text-gray-700">Coupon Message Preview:</p>
+          <textarea readonly class="w-full h-32 font-mono text-sm border border-gray-300 rounded-lg p-3 bg-gray-100 text-gray-800">${jsonString}</textarea>
+        </div>
+        <div class="flex flex-col space-y-4">
+          <button id="closeCouponBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">ปิดคูปอง</button>
+          <button id="copyJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">คัดลอก JSON</button>
+        </div>
+      </div>
+    `,
+    showConfirmButton: false,
+    showCloseButton: true,
+    customClass: {
+      popup: 'w-full max-w-lg p-6',
+    },
+    didOpen: () => {
+      document.getElementById('closeCouponBtn').addEventListener('click', () => {
+        Swal.close();
+        closeCoupon(couponId);
+      });
+      document.getElementById('copyJsonBtn').addEventListener('click', () => {
+        copyCouponMessage(couponId);
+      });
+    }
+  });
 }
 
 function copyCouponMessage(couponId) {
