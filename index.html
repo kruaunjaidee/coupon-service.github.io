@@ -3,14 +3,14 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Flex Coupon Generator + Supabase</title>
+<title>Coupon Generator + Supabase</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
 </head>
 <body class="bg-gray-50 p-6 font-sans antialiased">
 
-<h1 class="text-3xl font-bold text-green-600 mb-6">Flex Coupon Generator + Supabase</h1>
+<h1 class="text-3xl font-bold text-green-600 mb-6">Coupon Generator + Supabase</h1>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">Channel Access Tokens</h2>
 <div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
@@ -52,7 +52,6 @@
 <table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg overflow-hidden">
 <thead class="bg-gray-50">
 <tr>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon Name</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันหมดอายุ</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
@@ -60,9 +59,6 @@
 </thead>
 <tbody id="couponTable" class="divide-y divide-gray-200"></tbody>
 </table>
-
-<!-- <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Coupon Message Preview</h2>
-<textarea id="couponPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-lg shadow-sm p-3 bg-gray-100 text-gray-800"></textarea> -->
 
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
@@ -182,7 +178,6 @@ async function loadCoupons(){
     coupons.forEach(c=>{
       const tr = document.createElement("tr");
       tr.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.user_id}</td>
         <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.type}</td>
         <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.expire_date}</td>
         <td class="px-6 py-4 whitespace-nowrap text-center">
