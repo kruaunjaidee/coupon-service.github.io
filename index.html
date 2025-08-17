@@ -7,53 +7,52 @@
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
-<script src="https://static.line-scdn.net/liff/edge/2/sdk.js"></script>
 </head>
 <body class="bg-gray-50 p-6 font-sans antialiased">
 
 <h1 class="text-3xl font-bold text-green-600 mb-6">Flex Coupon Generator + Supabase</h1>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">Channel Access Tokens</h2>
-<div class="flex items-center space-x-2 mb-4">
-  <select id="tokenSelect" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"></select>
-  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"/>
-  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded px-2 py-1 focus:border-green-500 focus:ring-green-500"/>
-  <button onclick="addToken()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">เพิ่ม Token</button>
+<div class="flex items-center space-x-4 mb-6">
+  <select id="tokenSelect" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"></select>
+  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"/>
+  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-1/3"/>
+  <button onclick="addToken()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors">เพิ่ม Token</button>
 </div>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างคูปอง</h2>
-<div class="space-y-4 mb-4">
+<div class="space-y-6 mb-6">
   <label class="block">
-    <span class="text-gray-700">User ID:</span>
-    <input type="text" id="userId" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+    <span class="text-gray-700 font-medium text-lg">Coupon Name:</span>
+    <input type="text" id="userId" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
   </label>
   <label class="block">
-    <span class="text-gray-700">ประเภทคูปอง:</span>
-    <select id="type" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500">
+    <span class="text-gray-700 font-medium text-lg">ประเภทคูปอง:</span>
+    <select id="type" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none">
       <option value="discount">ส่วนลด</option>
       <option value="free_item">ของฟรี</option>
       <option value="special_access">สิทธิพิเศษ</option>
     </select>
   </label>
   <label class="block">
-    <span class="text-gray-700">วันหมดอายุ:</span>
-    <input type="date" id="expire" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+    <span class="text-gray-700 font-medium text-lg">วันหมดอายุ:</span>
+    <input type="date" id="expire" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
   </label>
   <label class="block">
-    <span class="text-gray-700">Image URL (optional):</span>
-    <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg" class="mt-1 block w-full border-gray-300 rounded-md shadow-sm focus:border-green-500 focus:ring-green-500"/>
+    <span class="text-gray-700 font-medium text-lg">Image URL (optional):</span>
+    <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
   </label>
-  <button onclick="createCoupon()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">สร้างคูปอง</button>
+  <button onclick="createCoupon()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">สร้างคูปอง</button>
 </div>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4">Sync คูปองจาก LINE</h2>
-<button onclick="syncCoupons()" class="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">Sync</button>
+<button onclick="syncCoupons()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors">Sync</button>
 
 <h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">ตารางคูปอง</h2>
 <table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg overflow-hidden">
 <thead class="bg-gray-50">
 <tr>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">User ID</th>
+<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon Name</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">Coupon ID</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
 <th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันหมดอายุ</th>
@@ -63,13 +62,12 @@
 <tbody id="couponTable" class="divide-y divide-gray-200"></tbody>
 </table>
 
-<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Flex Message Preview</h2>
-<textarea id="flexPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-md shadow-sm p-2 bg-gray-100"></textarea>
+<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">Coupon Message Preview</h2>
+<textarea id="couponPreview" readonly class="w-full h-48 font-mono text-sm border border-gray-300 rounded-lg shadow-sm p-3 bg-gray-100 text-gray-800"></textarea>
 
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
 const DEFAULT_IMAGE = "https://developers.line.biz/media/messaging-api/coupon/sample-coupon-image-100-yen-off.jpg";
-const LIFF_ID = "2005780370-Ybr8MVR2"; // แทนที่ด้วย LIFF ID จริงจาก LINE Developer Console
 
 async function callEdge(path, method="GET", body=null){
   const res = await fetch(`${EDGE_URL}${path}`,{
@@ -154,7 +152,7 @@ async function createCoupon(){
     const couponId = lineRes.data.couponId;
     await callEdge("/create","POST",{userId,couponId,type,expireDate:expire,imageUrl});
     await loadCoupons();
-    generateFlex(couponId,type,expire,imageUrl);
+    generateCouponMessage(couponId);
     Swal.fire('สร้างคูปองสำเร็จ', '', 'success');
   }catch(err){ Swal.fire('สร้างคูปองไม่สำเร็จ', err.message, 'error'); }
 }
@@ -191,8 +189,8 @@ async function loadCoupons(){
         <td class="px-6 py-4 whitespace-nowrap text-center">${c.expire_date}</td>
         <td class="px-6 py-4 whitespace-nowrap text-center">
           <button onclick="closeCoupon('${c.coupon_id}')" class="bg-red-500 text-white px-2 py-1 rounded hover:bg-red-600 mr-2">ปิด</button>
-          <button onclick="generateFlex('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
-          <button onclick="shareCoupon('${c.coupon_id}','${c.type}','${c.expire_date}','${c.image_url || DEFAULT_IMAGE}') " class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">แชร์</button>
+          <button onclick="generateCouponMessage('${c.coupon_id}')" class="bg-blue-500 text-white px-2 py-1 rounded hover:bg-blue-600 mr-2">Preview</button>
+          <button onclick="copyCouponMessage('${c.coupon_id}')" class="bg-green-500 text-white px-2 py-1 rounded hover:bg-green-600">คัดลอก JSON</button>
         </td>
       `;
       tbody.appendChild(tr);
@@ -222,200 +220,57 @@ async function closeCoupon(couponId){
   }
 }
 
-async function shareCoupon(couponId, type, expireDate, imageUrl) {
+function copyCouponMessage(couponId) {
+  const couponMessage = generateCouponMessageObject(couponId);
+  const jsonString = JSON.stringify(couponMessage, null, 2);
+  
   try {
-    // Initialize LIFF
-    Swal.fire({
-      title: 'กำลังเริ่มต้น LIFF...',
-      text: 'กรุณารอสักครู่',
-      icon: 'info',
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      willOpen: () => Swal.showLoading()
+    navigator.clipboard.writeText(jsonString).then(() => {
+      Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
+    }).catch(err => {
+      const textarea = document.createElement('textarea');
+      textarea.value = jsonString;
+      textarea.style.position = 'fixed';
+      textarea.style.opacity = '0';
+      document.body.appendChild(textarea);
+      textarea.focus();
+      textarea.select();
+      try {
+        document.execCommand('copy');
+        Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
+      } catch (fallbackErr) {
+        Swal.fire('คัดลอก JSON ไม่สำเร็จ', 'ไม่สามารถคัดลอก JSON ได้ กรุณาคัดลอกจากช่อง Preview', 'error');
+      }
+      document.body.removeChild(textarea);
     });
-    await liff.init({ liffId: LIFF_ID });
-
-    // Check login status
-    if (!liff.isLoggedIn()) {
-      Swal.fire({
-        title: 'ต้องเข้าสู่ระบบ LINE',
-        text: 'กำลัง redirect ไปหน้า login...',
-        icon: 'warning',
-        timer: 2000,
-        timerProgressBar: true,
-        allowOutsideClick: false
-      });
-      await liff.login();
-      Swal.close();
-    }
-
-    // Check if shareTargetPicker is available
-    if (!liff.isApiAvailable('shareTargetPicker')) {
-      Swal.fire({
-        title: 'Share Target Picker ไม่พร้อมใช้งาน',
-        text: 'กรุณาตรวจสอบการตั้งค่า LIFF ใน LINE Developer Console และเปิดใช้งาน scope chat_message.write',
-        icon: 'error'
-      });
-      return;
-    }
-
-    // Generate and validate Flex Message
-    const flexMessage = generateFlexObject(couponId, type, expireDate, imageUrl);
-    Swal.fire({
-      title: 'กำลังเปิดหน้าต่างแชร์...',
-      text: 'กรุณาเลือกแชทที่ต้องการแชร์',
-      icon: 'info',
-      allowOutsideClick: false,
-      showConfirmButton: false,
-      willOpen: () => Swal.showLoading()
-    });
-
-    // Call shareTargetPicker
-    const result = await liff.shareTargetPicker([flexMessage], { isMultiple: true });
-    if (result) {
-      Swal.fire('แชร์คูปองสำเร็จ', 'คูปองถูกส่งไปยังแชทที่เลือกแล้ว', 'success');
-    } else {
-      Swal.fire('ยกเลิกการแชร์', 'คุณยกเลิกการเลือกแชท', 'info');
-    }
   } catch (err) {
-    console.error('Share Error:', err);
-    Swal.fire('แชร์คูปองไม่สำเร็จ', `เกิดข้อผิดพลาด: ${err.message}`, 'error');
+    const textarea = document.createElement('textarea');
+    textarea.value = jsonString;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    try {
+      document.execCommand('copy');
+      Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
+    } catch (fallbackErr) {
+      Swal.fire('คัดลอก JSON ไม่สำเร็จ', 'ไม่สามารถคัดลอก JSON ได้ กรุณาคัดลอกจากช่อง Preview', 'error');
+    }
+    document.body.removeChild(textarea);
   }
 }
 
-function generateFlexObject(couponId, type, expireDate, imageUrl) {
-  // Validate imageUrl
-  if (!imageUrl.startsWith('https://')) {
-    console.warn('Invalid image URL, using default:', imageUrl);
-    imageUrl = DEFAULT_IMAGE;
-  }
-
+function generateCouponMessageObject(couponId) {
   return {
-    type: "flex",
-    altText: "คูปองพิเศษจาก LINE OA",
-    contents: {
-      type: "bubble",
-      size: "mega",
-      hero: {
-        type: "image",
-        url: imageUrl,
-        size: "full",
-        aspectRatio: "20:13",
-        aspectMode: "cover"
-      },
-      body: {
-        type: "box",
-        layout: "vertical",
-        contents: [
-          {
-            type: "text",
-            text: "คูปองพิเศษ",
-            weight: "bold",
-            size: "3xl",
-            align: "center",
-            color: "#1a6ff7",
-            wrap: true
-          },
-          {
-            type: "text",
-            text: "แสดงคูปองนี้เพื่อรับส่วนลด!",
-            size: "md",
-            color: "#666666",
-            align: "center",
-            margin: "md",
-            wrap: true
-          },
-          {
-            type: "separator",
-            margin: "lg"
-          },
-          {
-            type: "box",
-            layout: "vertical",
-            contents: [
-              {
-                type: "box",
-                layout: "baseline",
-                contents: [
-                  {
-                    type: "text",
-                    text: "ประเภท",
-                    size: "lg",
-                    color: "#555555",
-                    weight: "bold"
-                  },
-                  {
-                    type: "text",
-                    text: type === "discount" ? "ส่วนลด" : type === "free_item" ? "ของฟรี" : "สิทธิพิเศษ",
-                    size: "lg",
-                    color: "#ff0000",
-                    wrap: true
-                  }
-                ],
-                margin: "md",
-                spacing: "sm"
-              },
-              {
-                type: "box",
-                layout: "baseline",
-                contents: [
-                  {
-                    type: "text",
-                    text: "รหัสของคุณ",
-                    size: "lg",
-                    color: "#555555",
-                    weight: "bold",
-                    align: "start"
-                  }
-                ],
-                margin: "md",
-                spacing: "sm"
-              },
-              {
-                type: "text",
-                text: couponId,
-                size: "md",
-                color: "#ff99ff",
-                wrap: true,
-                align: "start"
-              },
-              {
-                type: "box",
-                layout: "baseline",
-                contents: [
-                  {
-                    type: "text",
-                    text: "หมดอายุ",
-                    size: "lg",
-                    color: "#555555",
-                    weight: "bold"
-                  },
-                  {
-                    type: "text",
-                    text: expireDate,
-                    size: "lg",
-                    color: "#1a6afb",
-                    wrap: true
-                  }
-                ],
-                margin: "md",
-                spacing: "sm",
-                offsetBottom: "md"
-              }
-            ],
-            spacing: "sm"
-          }
-        ],
-        paddingAll: "lg",
-        backgroundColor: "#FFFFFF"
-      }
-    }
+    type: "coupon",
+    couponId: couponId
   };
 }
 
-function generateFlex(couponId, type, expireDate, imageUrl) {
-  const flexMessage = generateFlexObject(couponId, type, expireDate, imageUrl);
-  document.getElementById("flexPreview").value = JSON.stringify(flexMessage, null, 2);
+function generateCouponMessage(couponId) {
+  const couponMessage = generateCouponMessageObject(couponId);
+  document.getElementById("couponPreview").value = JSON.stringify(couponMessage, null, 2);
 }
 
 // initial load
