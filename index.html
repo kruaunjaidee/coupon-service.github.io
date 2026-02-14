@@ -3,115 +3,513 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Coupon Generator + Supabase</title>
+<title>🎟️ Coupon Generator Pro</title>
 <script src="https://cdn.tailwindcss.com"></script>
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Kanit:wght@300;400;500;600;700&display=swap');
+  
+  body {
+    font-family: 'Kanit', sans-serif;
+  }
+  
+  .gradient-bg {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  }
+  
+  .gradient-card {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+  }
+  
+  .gradient-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+  }
+  
+  .coupon-card {
+    transition: all 0.3s ease;
+    border-left: 4px solid transparent;
+  }
+  
+  .coupon-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  }
+  
+  .coupon-discount { border-left-color: #f093fb; background: linear-gradient(to right, #fff5f7, #ffffff); }
+  .coupon-free { border-left-color: #4facfe; background: linear-gradient(to right, #f0f9ff, #ffffff); }
+  .coupon-gift { border-left-color: #feca57; background: linear-gradient(to right, #fffbf0, #ffffff); }
+  .coupon-cashback { border-left-color: #48dbfb; background: linear-gradient(to right, #f0fbff, #ffffff); }
+  .coupon-others { border-left-color: #a29bfe; background: linear-gradient(to right, #f5f4ff, #ffffff); }
+  
+  .btn-primary {
+    background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-primary:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(102, 126, 234, 0.4);
+  }
+  
+  .btn-success {
+    background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-success:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(79, 172, 254, 0.4);
+  }
+  
+  .btn-danger {
+    background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    transition: all 0.3s ease;
+  }
+  
+  .btn-danger:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 20px rgba(245, 87, 108, 0.4);
+  }
+  
+  .section-card {
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+    transition: all 0.3s ease;
+  }
+  
+  .section-card:hover {
+    box-shadow: 0 8px 25px rgba(0,0,0,0.12);
+  }
+  
+  .badge {
+    display: inline-block;
+    padding: 0.35rem 0.75rem;
+    border-radius: 999px;
+    font-size: 0.875rem;
+    font-weight: 600;
+  }
+  
+  .badge-discount { background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%); color: white; }
+  .badge-free { background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%); color: white; }
+  .badge-gift { background: linear-gradient(135deg, #feca57 0%, #ff9ff3 100%); color: white; }
+  .badge-cashback { background: linear-gradient(135deg, #48dbfb 0%, #0abde3 100%); color: white; }
+  .badge-others { background: linear-gradient(135deg, #a29bfe 0%, #6c5ce7 100%); color: white; }
+  
+  .emoji-icon {
+    font-size: 1.5rem;
+    margin-right: 0.5rem;
+  }
+
+  .price-input-group {
+    display: none;
+  }
+
+  .price-input-group.active {
+    display: block;
+  }
+
+  .floating-label {
+    position: relative;
+  }
+
+  .floating-label input:focus + label,
+  .floating-label select:focus + label,
+  .floating-label input:not(:placeholder-shown) + label,
+  .floating-label select:not([value=""]) + label {
+    transform: translateY(-1.5rem) scale(0.85);
+    color: #667eea;
+  }
+
+  @keyframes slideIn {
+    from {
+      opacity: 0;
+      transform: translateY(20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+
+  .animate-slide-in {
+    animation: slideIn 0.5s ease-out;
+  }
+</style>
 </head>
-<body class="bg-gray-50 p-6 font-sans antialiased">
+<body class="bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 min-h-screen p-4 md:p-8">
 
-<h1 class="text-3xl font-bold text-green-600 mb-6">Coupon Generator + Supabase</h1>
+<div class="max-w-7xl mx-auto">
+  <!-- Header -->
+  <div class="text-center mb-8 animate-slide-in">
+    <h1 class="text-5xl md:text-6xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-purple-600 via-pink-600 to-blue-600 mb-2">
+      🎟️ Coupon Generator Pro
+    </h1>
+    <p class="text-gray-600 text-lg">สร้างและจัดการคูปองของคุณอย่างง่ายดาย</p>
+  </div>
 
-<h2 class="text-xl font-semibold text-gray-800 mb-4">Channel Access Tokens</h2>
-<div class="flex flex-col sm:flex-row items-center space-y-4 sm:space-y-0 sm:space-x-4 mb-6">
-  <select id="tokenSelect" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"></select>
-  <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"/>
-  <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border border-gray-300 rounded-lg px-4 py-2 bg-white text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none w-full sm:w-1/3"/>
-  <button onclick="addToken()" class="bg-green-500 text-white px-6 py-2 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">เพิ่ม Token</button>
+  <!-- Token Management Section -->
+  <div class="section-card p-6 mb-8 animate-slide-in">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <span class="emoji-icon">🔑</span>
+      จัดการ Channel Access Tokens
+    </h2>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <select id="tokenSelect" class="border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all">
+        <option value="">เลือก Token</option>
+      </select>
+      <input type="text" id="tokenName" placeholder="ชื่อ Bot" class="border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      <input type="text" id="tokenValue" placeholder="Channel Access Token" class="border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      <button onclick="addToken()" class="btn-primary text-white px-6 py-3 rounded-xl font-semibold shadow-lg">
+        ➕ เพิ่ม Token
+      </button>
+    </div>
+  </div>
+
+  <!-- Create Coupon Section -->
+  <div class="section-card p-6 mb-8 animate-slide-in" style="animation-delay: 0.1s;">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <span class="emoji-icon">✨</span>
+      สร้างคูปองใหม่
+    </h2>
+    
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <!-- Coupon Name -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">📝 ชื่อคูปอง</label>
+        <input type="text" id="userId" placeholder="เช่น คูปองส่วนลด 100 บาท" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      </div>
+
+      <!-- Coupon Type -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">🎯 ประเภทคูปอง</label>
+        <select id="type" onchange="updatePriceInputs()" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all">
+          <option value="discount">💸 ส่วนลด (Discount)</option>
+          <option value="free">🎁 ฟรี (Free)</option>
+          <option value="gift">🎀 ของขวัญ (Gift)</option>
+          <option value="cashBack">💰 เงินคืน (Cash Back)</option>
+          <option value="others">⭐ อื่นๆ (Others)</option>
+        </select>
+      </div>
+
+      <!-- Price Type (for discount and cashback) -->
+      <div id="priceTypeGroup" class="price-input-group active">
+        <label class="block text-gray-700 font-semibold mb-2">💵 ประเภทราคา</label>
+        <select id="priceType" onchange="updatePriceFields()" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all">
+          <option value="fixed">จำนวนเงินคงที่</option>
+          <option value="percentage">เปอร์เซ็นต์</option>
+          <option value="explicit">ราคาชัดเจน (แสดงราคาเดิมและราคาใหม่)</option>
+        </select>
+      </div>
+
+      <!-- Fixed Amount -->
+      <div id="fixedAmountGroup" class="price-input-group active">
+        <label class="block text-gray-700 font-semibold mb-2">💴 จำนวนเงิน</label>
+        <div class="flex gap-2">
+          <input type="number" id="fixedAmount" placeholder="100" min="0" class="flex-1 border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+          <select id="currency" class="border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all">
+            <option value="JPY">JPY (¥)</option>
+            <option value="THB">THB (฿)</option>
+            <option value="USD">USD ($)</option>
+          </select>
+        </div>
+      </div>
+
+      <!-- Percentage -->
+      <div id="percentageGroup" class="price-input-group">
+        <label class="block text-gray-700 font-semibold mb-2">📊 เปอร์เซ็นต์</label>
+        <div class="flex items-center gap-2">
+          <input type="number" id="percentage" placeholder="25" min="0" max="100" class="flex-1 border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+          <span class="text-2xl font-bold text-purple-600">%</span>
+        </div>
+      </div>
+
+      <!-- Original Price (for explicit) -->
+      <div id="originalPriceGroup" class="price-input-group">
+        <label class="block text-gray-700 font-semibold mb-2">💲 ราคาเดิม</label>
+        <input type="number" id="originalPrice" placeholder="12000" min="0" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      </div>
+
+      <!-- Price After Discount (for explicit) -->
+      <div id="priceAfterDiscountGroup" class="price-input-group">
+        <label class="block text-gray-700 font-semibold mb-2">💵 ราคาหลังลด</label>
+        <input type="number" id="priceAfterDiscount" placeholder="9500" min="0" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      </div>
+
+      <!-- Expire Date -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">📅 วันหมดอายุ</label>
+        <input type="date" id="expire" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      </div>
+
+      <!-- Image URL -->
+      <div>
+        <label class="block text-gray-700 font-semibold mb-2">🖼️ Image URL (ถ้ามี)</label>
+        <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg" class="w-full border-2 border-purple-200 rounded-xl px-4 py-3 bg-white text-gray-800 focus:border-purple-500 focus:ring-4 focus:ring-purple-200 focus:outline-none transition-all"/>
+      </div>
+    </div>
+
+    <div class="mt-6">
+      <button onclick="createCoupon()" class="btn-success text-white px-8 py-4 rounded-xl font-bold text-lg shadow-xl w-full md:w-auto">
+        ✨ สร้างคูปองเลย!
+      </button>
+    </div>
+  </div>
+
+  <!-- Sync Section -->
+  <div class="section-card p-6 mb-8 animate-slide-in" style="animation-delay: 0.2s;">
+    <h2 class="text-2xl font-bold text-gray-800 mb-4 flex items-center">
+      <span class="emoji-icon">🔄</span>
+      ซิงค์คูปองจาก LINE
+    </h2>
+    <p class="text-gray-600 mb-4">ดึงข้อมูลคูปองทั้งหมดจาก LINE API และอัพเดตลงฐานข้อมูล</p>
+    <button onclick="syncCoupons()" class="btn-primary text-white px-8 py-4 rounded-xl font-bold shadow-xl">
+      🔄 Sync ตอนนี้
+    </button>
+  </div>
+
+  <!-- Coupons Table -->
+  <div class="section-card p-6 animate-slide-in" style="animation-delay: 0.3s;">
+    <h2 class="text-2xl font-bold text-gray-800 mb-6 flex items-center">
+      <span class="emoji-icon">📋</span>
+      คูปองทั้งหมด
+    </h2>
+    
+    <div class="overflow-x-auto">
+      <table class="min-w-full">
+        <thead class="bg-gradient-to-r from-purple-100 to-pink-100">
+          <tr>
+            <th class="px-6 py-4 text-left text-sm font-bold text-gray-700 uppercase tracking-wider rounded-tl-lg">ชื่อ</th>
+            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">ประเภท</th>
+            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">รายละเอียด</th>
+            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider">วันหมดอายุ</th>
+            <th class="px-6 py-4 text-center text-sm font-bold text-gray-700 uppercase tracking-wider rounded-tr-lg">จัดการ</th>
+          </tr>
+        </thead>
+        <tbody id="couponTable" class="divide-y divide-gray-100">
+          <!-- Coupons will be loaded here -->
+        </tbody>
+      </table>
+    </div>
+  </div>
 </div>
-
-<h2 class="text-xl font-semibold text-gray-800 mb-4">สร้างคูปอง</h2>
-<div class="space-y-6 mb-6">
-  <label class="block">
-    <span class="text-gray-700 font-medium text-lg">Coupon Name:</span>
-    <input type="text" id="userId" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium text-lg">ประเภทคูปอง:</span>
-    <select id="type" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none">
-      <option value="discount">ส่วนลด</option>
-      <option value="free_item">ของฟรี</option>
-      <option value="special_access">สิทธิพิเศษ</option>
-    </select>
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium text-lg">วันหมดอายุ:</span>
-    <input type="date" id="expire" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
-  </label>
-  <label class="block">
-    <span class="text-gray-700 font-medium text-lg">Image URL (optional):</span>
-    <input type="text" id="imageUrl" placeholder="https://example.com/image.jpg" class="mt-2 block w-full border-gray-300 rounded-lg shadow-sm px-4 py-3 bg-white text-gray-800 text-base focus:border-green-500 focus:ring-2 focus:ring-green-500 focus:outline-none"/>
-  </label>
-  <button onclick="createCoupon()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">สร้างคูปอง</button>
-</div>
-
-<h2 class="text-xl font-semibold text-gray-800 mb-4">Sync คูปองจาก LINE</h2>
-<button onclick="syncCoupons()" class="bg-green-500 text-white px-6 py-3 rounded-lg hover:bg-green-600 transition-colors w-full sm:w-auto">Sync</button>
-
-<h2 class="text-xl font-semibold text-gray-800 mb-4 mt-6">ตารางคูปอง</h2>
-<table class="min-w-full divide-y divide-gray-200 bg-white shadow-md rounded-lg overflow-hidden">
-<thead class="bg-gray-50">
-<tr>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">ประเภท</th>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">วันหมดอายุ</th>
-<th class="px-6 py-3 text-center text-xs font-medium text-gray-500 uppercase tracking-wider">จัดการ</th>
-</tr>
-</thead>
-<tbody id="couponTable" class="divide-y divide-gray-200"></tbody>
-</table>
 
 <script>
 const EDGE_URL = "https://mihtvcbzguzkvfwnlnem.supabase.co/functions/v1/coupon-service";
 const DEFAULT_IMAGE = "https://developers.line.biz/media/messaging-api/coupon/sample-coupon-image-100-yen-off.jpg";
 
-async function callEdge(path, method="GET", body=null){
-  const res = await fetch(`${EDGE_URL}${path}`,{
+function updatePriceInputs() {
+  const type = document.getElementById("type").value;
+  const priceTypeGroup = document.getElementById("priceTypeGroup");
+  
+  if (type === "discount" || type === "cashBack") {
+    priceTypeGroup.classList.add("active");
+    updatePriceFields();
+  } else {
+    priceTypeGroup.classList.remove("active");
+    // Hide all price input groups
+    document.getElementById("fixedAmountGroup").classList.remove("active");
+    document.getElementById("percentageGroup").classList.remove("active");
+    document.getElementById("originalPriceGroup").classList.remove("active");
+    document.getElementById("priceAfterDiscountGroup").classList.remove("active");
+  }
+}
+
+function updatePriceFields() {
+  const priceType = document.getElementById("priceType").value;
+  const fixedGroup = document.getElementById("fixedAmountGroup");
+  const percentageGroup = document.getElementById("percentageGroup");
+  const originalPriceGroup = document.getElementById("originalPriceGroup");
+  const priceAfterDiscountGroup = document.getElementById("priceAfterDiscountGroup");
+  
+  // Hide all first
+  fixedGroup.classList.remove("active");
+  percentageGroup.classList.remove("active");
+  originalPriceGroup.classList.remove("active");
+  priceAfterDiscountGroup.classList.remove("active");
+  
+  // Show relevant fields
+  if (priceType === "fixed") {
+    fixedGroup.classList.add("active");
+  } else if (priceType === "percentage") {
+    percentageGroup.classList.add("active");
+  } else if (priceType === "explicit") {
+    originalPriceGroup.classList.add("active");
+    priceAfterDiscountGroup.classList.add("active");
+  }
+}
+
+function getRewardObject() {
+  const type = document.getElementById("type").value;
+  const priceType = document.getElementById("priceType").value;
+  
+  if (type === "free") {
+    return { type: "free" };
+  } else if (type === "gift") {
+    return { type: "gift" };
+  } else if (type === "others") {
+    return { type: "others" };
+  } else if (type === "discount" || type === "cashBack") {
+    if (priceType === "fixed") {
+      const fixedAmount = parseInt(document.getElementById("fixedAmount").value) || 100;
+      const currency = document.getElementById("currency").value;
+      return {
+        type: type,
+        priceInfo: {
+          type: "fixed",
+          fixedAmount: fixedAmount,
+          currency: currency
+        }
+      };
+    } else if (priceType === "percentage") {
+      const percentage = parseInt(document.getElementById("percentage").value) || 10;
+      return {
+        type: type,
+        priceInfo: {
+          type: "percentage",
+          percentage: percentage
+        }
+      };
+    } else if (priceType === "explicit") {
+      const originalPrice = parseInt(document.getElementById("originalPrice").value) || 12000;
+      const priceAfterDiscount = parseInt(document.getElementById("priceAfterDiscount").value) || 9500;
+      const currency = document.getElementById("currency").value;
+      return {
+        type: type,
+        priceInfo: {
+          type: "explicit",
+          originalPrice: originalPrice,
+          priceAfterDiscount: priceAfterDiscount,
+          currency: currency
+        }
+      };
+    }
+  }
+  
+  return { type: "discount", priceInfo: { type: "fixed", fixedAmount: 100, currency: "JPY" } };
+}
+
+function formatRewardDisplay(rewardData) {
+  if (!rewardData) return '-';
+  
+  try {
+    const reward = typeof rewardData === 'string' ? JSON.parse(rewardData) : rewardData;
+    
+    if (reward.type === 'free') return '🎁 ฟรี';
+    if (reward.type === 'gift') return '🎀 ของขวัญ';
+    if (reward.type === 'others') return '⭐ อื่นๆ';
+    
+    if (reward.priceInfo) {
+      const pi = reward.priceInfo;
+      if (pi.type === 'fixed') {
+        return `${pi.fixedAmount} ${pi.currency || 'JPY'}`;
+      } else if (pi.type === 'percentage') {
+        return `${pi.percentage}%`;
+      } else if (pi.type === 'explicit') {
+        return `${pi.originalPrice} → ${pi.priceAfterDiscount} ${pi.currency || 'JPY'}`;
+      }
+    }
+    
+    return '-';
+  } catch (e) {
+    return '-';
+  }
+}
+
+function getTypeEmoji(type) {
+  const emojis = {
+    'discount': '💸',
+    'free': '🎁',
+    'gift': '🎀',
+    'cashBack': '💰',
+    'others': '⭐'
+  };
+  return emojis[type] || '🎟️';
+}
+
+function getTypeBadgeClass(type) {
+  const classes = {
+    'discount': 'badge-discount',
+    'free': 'badge-free',
+    'gift': 'badge-gift',
+    'cashBack': 'badge-cashback',
+    'others': 'badge-others'
+  };
+  return classes[type] || 'badge-others';
+}
+
+function getCouponCardClass(type) {
+  const classes = {
+    'discount': 'coupon-discount',
+    'free': 'coupon-free',
+    'gift': 'coupon-gift',
+    'cashBack': 'coupon-cashback',
+    'others': 'coupon-others'
+  };
+  return classes[type] || 'coupon-others';
+}
+
+async function callEdge(path, method="GET", body=null) {
+  const res = await fetch(`${EDGE_URL}${path}`, {
     method,
-    headers:{ "Content-Type":"application/json" },
-    body: body ? JSON.stringify(body):undefined
+    headers: { "Content-Type": "application/json" },
+    body: body ? JSON.stringify(body) : undefined
   });
-  if(!res.ok) throw new Error(await res.text());
+  if (!res.ok) throw new Error(await res.text());
   return await res.json();
 }
 
-async function loadTokens(){
+async function loadTokens() {
   try {
     const tokens = await callEdge("/tokens");
     const select = document.getElementById("tokenSelect");
-    select.innerHTML="";
-    tokens.forEach(t=>{
+    select.innerHTML = '<option value="">เลือก Token</option>';
+    tokens.forEach(t => {
       const opt = document.createElement("option");
       opt.value = t.token;
       opt.textContent = t.name;
       select.appendChild(opt);
     });
-  } catch(err) {
+  } catch (err) {
     Swal.fire('โหลด Token ไม่สำเร็จ', err.message, 'error');
   }
 }
 
-async function addToken(){
+async function addToken() {
   const name = document.getElementById("tokenName").value.trim();
   const token = document.getElementById("tokenValue").value.trim();
-  if(!name||!token){ Swal.fire('กรอกข้อมูลให้ครบ', '', 'warning'); return; }
+  if (!name || !token) {
+    Swal.fire('กรอกข้อมูลให้ครบ', '', 'warning');
+    return;
+  }
   try {
-    await callEdge("/tokens","POST",{name,token});
-    document.getElementById("tokenName").value="";
-    document.getElementById("tokenValue").value="";
+    await callEdge("/tokens", "POST", { name, token });
+    document.getElementById("tokenName").value = "";
+    document.getElementById("tokenValue").value = "";
     await loadTokens();
-    Swal.fire('เพิ่ม Token สำเร็จ', '', 'success');
-  } catch(err) {
+    Swal.fire({
+      icon: 'success',
+      title: 'เพิ่ม Token สำเร็จ! 🎉',
+      showConfirmButton: false,
+      timer: 1500
+    });
+  } catch (err) {
     Swal.fire('เพิ่ม Token ไม่สำเร็จ', err.message, 'error');
   }
 }
 
-async function createCoupon(){
+async function createCoupon() {
   const userId = document.getElementById("userId").value.trim();
   const type = document.getElementById("type").value;
   const expire = document.getElementById("expire").value;
   const imageUrl = document.getElementById("imageUrl").value.trim() || DEFAULT_IMAGE;
   const token = document.getElementById("tokenSelect").value;
-  if(!userId||!expire||!token){ Swal.fire('กรอกให้ครบทุกช่อง', '', 'warning'); return; }
+  
+  if (!userId || !expire || !token) {
+    Swal.fire('กรอกให้ครบทุกช่อง', '', 'warning');
+    return;
+  }
 
   if (!imageUrl.startsWith('https://')) {
     Swal.fire('Image URL ต้องเป็น HTTPS', 'กรุณาใส่ URL ที่ถูกต้องหรือปล่อยว่างเพื่อใช้ค่าเริ่มต้น', 'warning');
@@ -120,140 +518,288 @@ async function createCoupon(){
 
   const endDate = new Date(`${expire}T23:59:59+07:00`);
   const endTimestamp = Math.floor(endDate.getTime() / 1000);
+  
+  const reward = getRewardObject();
 
   const bodyLINE = {
-    title:"Friends-only coupon",
-    description:"- แสดงหน้าจอนี้ให้พนักงานดู\n- ใช้แล้วไม่สามารถใช้ซ้ำ\n- คูปองอาจเปลี่ยนแปลง/ยกเลิกได้โดยไม่แจ้งล่วงหน้า",
-    reward:{ type:"discount", priceInfo:{ type:"fixed", fixedAmount:100 } },
-    acquisitionCondition:{ type:"normal" },
-    startTimestamp:0,
+    title: "Friends-only coupon",
+    description: "- แสดงหน้าจอนี้ให้พนักงานดู\n- ใช้แล้วไม่สามารถใช้ซ้ำ\n- คูปองอาจเปลี่ยนแปลง/ยกเลิกได้โดยไม่แจ้งล่วงหน้า",
+    reward: reward,
+    acquisitionCondition: { type: "normal" },
+    startTimestamp: 0,
     endTimestamp: endTimestamp,
     imageUrl: imageUrl,
-    timezone:"ASIA_BANGKOK",
-    visibility:"UNLISTED",
-    maxUseCountPerTicket:1
+    timezone: "ASIA_BANGKOK",
+    visibility: "UNLISTED",
+    maxUseCountPerTicket: 1
   };
 
-  try{
+  try {
     Swal.fire({
-      title: 'กำลังสร้างคูปอง...',
-      text: 'กรุณารอสักครู่',
+      title: 'กำลังสร้างคูปอง... ✨',
+      html: 'กรุณารอสักครู่',
       icon: 'info',
       allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => Swal.showLoading()
     });
-    const lineRes = await callEdge("/line-create","POST",{token,bodyLINE});
+    
+    const lineRes = await callEdge("/line-create", "POST", { token, bodyLINE });
     const couponId = lineRes.data.couponId;
-    await callEdge("/create","POST",{userId,couponId,type,expireDate:expire,imageUrl});
+    await callEdge("/create", "POST", { 
+      userId, 
+      couponId, 
+      type, 
+      rewardData: JSON.stringify(reward),
+      expireDate: expire, 
+      imageUrl 
+    });
+    
     await loadCoupons();
-    generateCouponMessage(couponId);
-    Swal.fire('สร้างคูปองสำเร็จ', '', 'success');
-  }catch(err){ Swal.fire('สร้างคูปองไม่สำเร็จ', err.message, 'error'); }
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'สร้างคูปองสำเร็จ! 🎉',
+      html: `<p class="text-lg">Coupon ID: <strong>${couponId}</strong></p>`,
+      showConfirmButton: true,
+      confirmButtonText: 'ดูรายละเอียด',
+      timer: 3000
+    }).then((result) => {
+      if (result.isConfirmed) {
+        showCouponModal(couponId, userId, type, expire, JSON.stringify(reward));
+      }
+    });
+    
+    // Clear form
+    document.getElementById("userId").value = "";
+    document.getElementById("expire").value = "";
+    document.getElementById("imageUrl").value = "";
+    
+  } catch (err) {
+    Swal.fire('สร้างคูปองไม่สำเร็จ', err.message, 'error');
+  }
 }
 
-async function syncCoupons(){
+async function syncCoupons() {
   const token = document.getElementById("tokenSelect").value;
-  if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
-  try{
+  if (!token) {
+    Swal.fire('เลือก Token ก่อน', '', 'warning');
+    return;
+  }
+  try {
     Swal.fire({
-      title: 'กำลัง Sync คูปอง...',
-      text: 'กรุณารอสักครู่',
+      title: 'กำลัง Sync คูปอง... 🔄',
+      html: 'กรุณารอสักครู่',
       icon: 'info',
       allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => Swal.showLoading()
     });
-    await callEdge("/sync","POST",{token});
+    
+    const result = await callEdge("/sync", "POST", { token });
     await loadCoupons();
-    Swal.fire('Sync สำเร็จ', '', 'success');
-  }catch(err){ Swal.fire('Sync ไม่สำเร็จ', err.message, 'error'); }
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'Sync สำเร็จ! 🎊',
+      html: `<p class="text-lg">ดึงข้อมูลมา <strong>${result.count}</strong> คูปอง</p>`,
+      showConfirmButton: false,
+      timer: 2000
+    });
+  } catch (err) {
+    Swal.fire('Sync ไม่สำเร็จ', err.message, 'error');
+  }
 }
 
-async function loadCoupons(){
+async function loadCoupons() {
   try {
     const coupons = await callEdge("/list");
     const tbody = document.getElementById("couponTable");
     tbody.innerHTML = "";
-    coupons.forEach(c=>{
+    
+    if (coupons.length === 0) {
+      tbody.innerHTML = `
+        <tr>
+          <td colspan="5" class="px-6 py-12 text-center text-gray-500">
+            <div class="text-6xl mb-4">📭</div>
+            <p class="text-xl">ยังไม่มีคูปอง</p>
+            <p class="text-sm mt-2">สร้างคูปองแรกของคุณเลย!</p>
+          </td>
+        </tr>
+      `;
+      return;
+    }
+    
+    coupons.forEach((c, index) => {
       const tr = document.createElement("tr");
+      tr.className = `coupon-card ${getCouponCardClass(c.type)} animate-slide-in`;
+      tr.style.animationDelay = `${index * 0.05}s`;
+      
+      const rewardDisplay = formatRewardDisplay(c.reward_data);
+      
+      // Store coupon data in a global object for easy access
+      window.couponDataStore = window.couponDataStore || {};
+      window.couponDataStore[c.coupon_id] = {
+        userId: c.user_id,
+        couponId: c.coupon_id,
+        type: c.type,
+        expireDate: c.expire_date,
+        rewardData: c.reward_data
+      };
+      
       tr.innerHTML = `
-        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.type}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center text-gray-800">${c.expire_date}</td>
-        <td class="px-6 py-4 whitespace-nowrap text-center">
-          <button onclick="showCouponModal('${c.coupon_id}', '${c.user_id}', '${c.type}', '${c.expire_date}')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-colors">Preview</button>
+        <td class="px-6 py-4">
+          <div class="font-semibold text-gray-800">${c.user_id}</div>
+          <div class="text-sm text-gray-500">${c.coupon_id}</div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <span class="badge ${getTypeBadgeClass(c.type)}">
+            ${getTypeEmoji(c.type)} ${c.type}
+          </span>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <div class="font-semibold text-gray-700">${rewardDisplay}</div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <div class="font-medium text-gray-700">📅 ${c.expire_date}</div>
+        </td>
+        <td class="px-6 py-4 text-center">
+          <div class="flex justify-center gap-2">
+            <button onclick="showCouponModal('${c.coupon_id}')" class="bg-blue-500 text-white px-4 py-2 rounded-lg hover:bg-blue-600 transition-all shadow-md hover:shadow-lg">
+              👁️ ดู
+            </button>
+            <button onclick="confirmCloseCoupon('${c.coupon_id}')" class="btn-danger text-white px-4 py-2 rounded-lg transition-all shadow-md hover:shadow-lg">
+              🗑️ ลบ
+            </button>
+          </div>
         </td>
       `;
       tbody.appendChild(tr);
     });
-  } catch(err) {
+  } catch (err) {
     Swal.fire('โหลดคูปองไม่สำเร็จ', err.message, 'error');
   }
 }
 
-async function closeCoupon(couponId){
+async function confirmCloseCoupon(couponId) {
+  const result = await Swal.fire({
+    title: 'ยืนยันการลบคูปอง?',
+    html: `<p>คุณต้องการลบคูปอง <strong>${couponId}</strong> ใช่หรือไม่?</p><p class="text-sm text-gray-500 mt-2">การดำเนินการนี้ไม่สามารถย้อนกลับได้</p>`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#f5576c',
+    cancelButtonColor: '#6c757d',
+    confirmButtonText: '✓ ลบเลย',
+    cancelButtonText: '✗ ยกเลิก'
+  });
+  
+  if (result.isConfirmed) {
+    await closeCoupon(couponId);
+  }
+}
+
+async function closeCoupon(couponId) {
   const token = document.getElementById("tokenSelect").value;
-  if(!token){ Swal.fire('เลือก Token ก่อน', '', 'warning'); return; }
+  if (!token) {
+    Swal.fire('เลือก Token ก่อน', '', 'warning');
+    return;
+  }
   try {
     Swal.fire({
-      title: 'กำลังปิดคูปอง...',
-      text: 'กรุณารอสักครู่',
+      title: 'กำลังปิดคูปอง... 🗑️',
+      html: 'กรุณารอสักครู่',
       icon: 'info',
       allowOutsideClick: false,
       showConfirmButton: false,
       willOpen: () => Swal.showLoading()
     });
-    await callEdge(`/close/${couponId}`,"PUT",{token});
+    
+    await callEdge(`/close/${couponId}`, "PUT", { token });
     await loadCoupons();
-    Swal.fire('ปิดและลบคูปองสำเร็จ', '', 'success');
-  } catch(err) {
+    
+    Swal.fire({
+      icon: 'success',
+      title: 'ลบคูปองสำเร็จ! ✓',
+      showConfirmButton: false,
+      timer: 1500
+    });
+  } catch (err) {
     Swal.fire('ปิดคูปองไม่สำเร็จ', err.message, 'error');
   }
 }
 
-function showCouponModal(couponId, couponName, type, expireDate) {
+function showCouponModal(couponId) {
+  // Get coupon data from global store
+  const couponData = window.couponDataStore?.[couponId];
+  if (!couponData) {
+    Swal.fire('Error', 'ไม่พบข้อมูลคูปอง', 'error');
+    return;
+  }
+  
+  const { userId, type, expireDate, rewardData } = couponData;
   const couponMessage = generateCouponMessageObject(couponId);
   const jsonString = JSON.stringify(couponMessage, null, 2);
+  const rewardDisplay = formatRewardDisplay(rewardData);
   
   Swal.fire({
-    title: 'รายละเอียดคูปอง',
+    title: `🎟️ รายละเอียดคูปอง`,
     html: `
       <div class="text-left space-y-4">
-        <div>
-          <p class="font-medium text-gray-700">Coupon Name:</p>
-          <p class="text-gray-800">${couponName}</p>
+        <div class="p-4 ${getCouponCardClass(type)} rounded-xl">
+          <p class="text-sm text-gray-600 mb-1">📝 Coupon Name</p>
+          <p class="text-lg font-bold text-gray-800">${userId}</p>
         </div>
-        <div>
-          <p class="font-medium text-gray-700">Coupon ID:</p>
-          <p class="text-gray-800">${couponId}</p>
+        
+        <div class="grid grid-cols-2 gap-4">
+          <div class="p-3 bg-purple-50 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">🆔 Coupon ID</p>
+            <p class="text-sm font-mono text-gray-800 break-all">${couponId}</p>
+          </div>
+          
+          <div class="p-3 bg-pink-50 rounded-lg">
+            <p class="text-xs text-gray-600 mb-1">🎯 ประเภท</p>
+            <span class="badge ${getTypeBadgeClass(type)} text-xs">
+              ${getTypeEmoji(type)} ${type}
+            </span>
+          </div>
         </div>
-        <div>
-          <p class="font-medium text-gray-700">ประเภท:</p>
-          <p class="text-gray-800">${type}</p>
+        
+        <div class="p-3 bg-blue-50 rounded-lg">
+          <p class="text-xs text-gray-600 mb-1">💎 รายละเอียดส่วนลด</p>
+          <p class="text-lg font-bold text-gray-800">${rewardDisplay}</p>
         </div>
-        <div>
-          <p class="font-medium text-gray-700">วันหมดอายุ:</p>
-          <p class="text-gray-800">${expireDate}</p>
+        
+        <div class="p-3 bg-green-50 rounded-lg">
+          <p class="text-xs text-gray-600 mb-1">📅 วันหมดอายุ</p>
+          <p class="text-sm font-semibold text-gray-800">${expireDate}</p>
         </div>
+        
         <div>
-          <p class="font-medium text-gray-700">Coupon Message Preview:</p>
-          <textarea readonly class="w-full h-32 font-mono text-sm border border-gray-300 rounded-lg p-3 bg-gray-100 text-gray-800">${jsonString}</textarea>
+          <p class="text-sm font-semibold text-gray-700 mb-2">📋 Coupon Message Preview</p>
+          <textarea readonly class="w-full h-32 font-mono text-xs border-2 border-purple-200 rounded-lg p-3 bg-gray-50 text-gray-800 focus:outline-none">${jsonString}</textarea>
         </div>
-        <div class="flex flex-col space-y-4">
-          <button id="closeCouponBtn" class="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition-colors">ปิดคูปอง</button>
-          <button id="copyJsonBtn" class="bg-green-500 text-white px-4 py-2 rounded-lg hover:bg-green-600 transition-colors">คัดลอก JSON</button>
+        
+        <div class="flex flex-col gap-3">
+          <button id="copyJsonBtn" class="btn-success text-white px-4 py-3 rounded-lg font-semibold shadow-lg">
+            📋 คัดลอก JSON
+          </button>
+          <button id="closeCouponBtn" class="btn-danger text-white px-4 py-3 rounded-lg font-semibold shadow-lg">
+            🗑️ ปิดคูปอง
+          </button>
         </div>
       </div>
     `,
     showConfirmButton: false,
     showCloseButton: true,
+    width: '90%',
+    maxWidth: '600px',
     customClass: {
-      popup: 'w-full max-w-lg p-6',
+      popup: 'rounded-2xl',
     },
     didOpen: () => {
       document.getElementById('closeCouponBtn').addEventListener('click', () => {
         Swal.close();
-        closeCoupon(couponId);
+        confirmCloseCoupon(couponId);
       });
       document.getElementById('copyJsonBtn').addEventListener('click', () => {
         copyCouponMessage(couponId);
@@ -268,39 +814,42 @@ function copyCouponMessage(couponId) {
   
   try {
     navigator.clipboard.writeText(jsonString).then(() => {
-      Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
+      Swal.fire({
+        icon: 'success',
+        title: 'คัดลอกสำเร็จ! 📋',
+        text: 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+        showConfirmButton: false,
+        timer: 1500
+      });
     }).catch(err => {
-      const textarea = document.createElement('textarea');
-      textarea.value = jsonString;
-      textarea.style.position = 'fixed';
-      textarea.style.opacity = '0';
-      document.body.appendChild(textarea);
-      textarea.focus();
-      textarea.select();
-      try {
-        document.execCommand('copy');
-        Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
-      } catch (fallbackErr) {
-        Swal.fire('คัดลอก JSON ไม่สำเร็จ', 'ไม่สามารถคัดลอก JSON ได้ กรุณาคัดลอกจากช่อง Preview', 'error');
-      }
-      document.body.removeChild(textarea);
+      fallbackCopyToClipboard(jsonString);
     });
   } catch (err) {
-    const textarea = document.createElement('textarea');
-    textarea.value = jsonString;
-    textarea.style.position = 'fixed';
-    textarea.style.opacity = '0';
-    document.body.appendChild(textarea);
-    textarea.focus();
-    textarea.select();
-    try {
-      document.execCommand('copy');
-      Swal.fire('คัดลอก JSON สำเร็จ', 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว', 'success');
-    } catch (fallbackErr) {
-      Swal.fire('คัดลอก JSON ไม่สำเร็จ', 'ไม่สามารถคัดลอก JSON ได้ กรุณาคัดลอกจากช่อง Preview', 'error');
-    }
-    document.body.removeChild(textarea);
+    fallbackCopyToClipboard(jsonString);
   }
+}
+
+function fallbackCopyToClipboard(text) {
+  const textarea = document.createElement('textarea');
+  textarea.value = text;
+  textarea.style.position = 'fixed';
+  textarea.style.opacity = '0';
+  document.body.appendChild(textarea);
+  textarea.focus();
+  textarea.select();
+  try {
+    document.execCommand('copy');
+    Swal.fire({
+      icon: 'success',
+      title: 'คัดลอกสำเร็จ! 📋',
+      text: 'JSON ของคูปองถูกคัดลอกไปยังคลิปบอร์ดแล้ว',
+      showConfirmButton: false,
+      timer: 1500
+    });
+  } catch (fallbackErr) {
+    Swal.fire('คัดลอก JSON ไม่สำเร็จ', 'ไม่สามารถคัดลอก JSON ได้ กรุณาคัดลอกจากช่อง Preview', 'error');
+  }
+  document.body.removeChild(textarea);
 }
 
 function generateCouponMessageObject(couponId) {
@@ -310,14 +859,13 @@ function generateCouponMessageObject(couponId) {
   };
 }
 
-function generateCouponMessage(couponId) {
-  const couponMessage = generateCouponMessageObject(couponId);
-  document.getElementById("couponPreview").value = JSON.stringify(couponMessage, null, 2);
-}
+// Set minimum date to today
+document.getElementById('expire').min = new Date().toISOString().split('T')[0];
 
-// initial load
+// Initial load
 loadTokens();
 loadCoupons();
+updatePriceInputs();
 </script>
 
 </body>
